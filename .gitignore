@@ -6,6 +6,10 @@ npm-debug.log
 *.env
 *.dev
 .DS_Store
+.tern-port
+
+# Reactjs built
+/built/bundle.js.map
 
 # Docker
 Dockerfile
