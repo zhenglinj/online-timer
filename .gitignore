@@ -9,7 +9,7 @@ npm-debug.log
 .tern-port
 
 # Reactjs built
-/built/bundle.js.map
+/built/
 
 # Docker
 Dockerfile
