@@ -25,6 +25,7 @@ export default class SimpleTimer extends React.Component {
       showEditModal: false,
       showTimer: true,
       isStoped: false,
+      startTimestamp: 0,
       totalSeconds: props.totalSeconds,
       leftSeconds: leftSeconds,
       spButton: (() => {
@@ -51,12 +52,13 @@ export default class SimpleTimer extends React.Component {
   }
 
   componentDidUpdate () {
-    if (!this.state.isStoped && this.state.leftSeconds <= -30)
+    if (!this.state.isStoped && this.state.leftSeconds <= -3600)
       this.stopTimer();
   }
 
   tick () {
-    this.setState({leftSeconds: (this.state.leftSeconds - 1)});
+    let now = new Date().getTime();
+    this.setState({leftSeconds: (this.state.startTimestamp + this.state.totalSeconds - parseInt(now / 1000))});
   }
 
   closeEditModal () {
@@ -102,7 +104,9 @@ export default class SimpleTimer extends React.Component {
   }
 
   startTimer () {
+    let now = new Date().getTime();
     this.setState({
+      startTimestamp: (parseInt(now / 1000)),
       spButton: (
         <Button bsStyle="primary" onClick={this.pauseTimer}>
           <span className="glyphicon glyphicon-pause"></span>
