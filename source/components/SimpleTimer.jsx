@@ -4,6 +4,32 @@ import { Row, Col } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
 import { ProgressBar, Modal } from 'react-bootstrap';
 
+const MAX_TIMEOUT_SECONDS = 3600;
+
+function zerofloor(x) {
+  let ret = Math.abs(x);
+  ret = Math.floor(ret);
+  ret = x > 0 ? ret : -ret;
+  return ret;
+}
+
+function pad(num, size) {
+  var s = "000000000" + num;
+  return s.substr(s.length - size);
+}
+
+function sec2time(sec) {
+  let h = zerofloor(sec / 3600);
+  let m = zerofloor((sec - 3600 * h) / 60);
+  let s = zerofloor(sec - 3600 * h - 60 * m);
+  h = h > 0 ? h : -h;
+  m = m > 0 ? m : -m;
+  s = s > 0 ? s : -s;
+  return (
+    { h: pad(h, 2), m: pad(m, 2), s: pad(s, 2)}
+  )
+}
+
 export default class SimpleTimer extends React.Component {
   constructor (props) {
     super(props);
@@ -52,7 +78,7 @@ export default class SimpleTimer extends React.Component {
   }
 
   componentDidUpdate () {
-    if (!this.state.isStoped && this.state.leftSeconds <= -3600)
+    if (!this.state.isStoped && this.state.leftSeconds <= - MAX_TIMEOUT_SECONDS)
       this.stopTimer();
   }
 
@@ -161,33 +187,10 @@ export default class SimpleTimer extends React.Component {
   }
 
   render () {
-    function zerofloor(x) {
-      let ret = Math.abs(x);
-      ret = Math.floor(ret);
-      ret = x > 0 ? ret : -ret;
-      return ret;
-    }
-
-    function pad(num, size) {
-      var s = "000000000" + num;
-      return s.substr(s.length - size);
-    }
-
-    function sec2time(sec) {
-      let h = zerofloor(sec / 3600);
-      let m = zerofloor((sec - 3600 * h) / 60);
-      let s = zerofloor(sec - 3600 * h - 60 * m);
-      h = h > 0 ? h : -h;
-      m = m > 0 ? m : -m;
-      s = s > 0 ? s : -s;
-      return (
-        { h: pad(h, 2), m: pad(m, 2), s: pad(s, 2)}
-      )
-    }
-
     if (this.state.showTimer) {
       let totalTime = sec2time(this.state.totalSeconds);
       let leftTime = sec2time(this.state.leftSeconds);
+      let maxTimeoutTime = sec2time(MAX_TIMEOUT_SECONDS);
 
       let progressBar;
       let leftSeconds = this.state.leftSeconds;
@@ -239,31 +242,44 @@ export default class SimpleTimer extends React.Component {
         </Modal>
       );
 
+      let timeMonitor = () => {
+        if (this.state.leftSeconds >= 0) {
+          return (
+            <h1 style={{marginTop: "0px", marginBottom: "0px"}}>
+              {" " + leftTime.h + ":" + leftTime.m + ":" + leftTime.s}
+            </h1>
+          );
+        } else if (this.state.leftSeconds >= - MAX_TIMEOUT_SECONDS) {
+          return (
+            <h1 style={{marginTop: "0px", marginBottom: "0px", background: "lightpink", color: "gray"}}>
+              {"-" + leftTime.h + ":" + leftTime.m + ":" + leftTime.s}
+            </h1>
+          );
+        } else {
+          return (
+            <h1 style={{marginTop: "0px", marginBottom: "0px", background: "lightpink", color: "gray"}}>
+              {"> -" + maxTimeoutTime.h + ":" + maxTimeoutTime.m + ":" + maxTimeoutTime.s}
+            </h1>
+          );
+        }
+      };
+
       return (
         <div>
           <Row>
             <Col xs={8} md={8}>
-              {
-                (this.state.leftSeconds >= 0) ?
-                <h1 style={{marginTop: "0px", marginBottom: "0px"}}>
-                  {" " + leftTime.h + ":" + leftTime.m + ":" + leftTime.s}
-                </h1>
-                :
-                <h1 style={{marginTop: "0px", marginBottom: "0px", background: "lightpink", color: "gray"}}>
-                  {"-" + leftTime.h + ":" + leftTime.m + ":" + leftTime.s}
-                </h1>
-              }
-          <p>
-            {this.state.name}
-            {" ("}
-            {totalTime.h + ":" + totalTime.m + ":" + totalTime.s}
-            {")  "}
-            <Button bsStyle="link" bsSize="small" onClick={this.openEditModal}>
-              <span className="glyphicon glyphicon-time"></span>Edit
-            </Button>
-            {" | "}
-            <Button bsStyle="link" bsSize="small" onClick={this.removeTimer}>Remove</Button>
-          </p>
+              {timeMonitor()}
+              <p>
+                {this.state.name}
+                {" ("}
+                {totalTime.h + ":" + totalTime.m + ":" + totalTime.s}
+                {")  "}
+                <Button bsStyle="link" bsSize="small" onClick={this.openEditModal}>
+                  <span className="glyphicon glyphicon-time"></span>Edit
+                </Button>
+                {" | "}
+                <Button bsStyle="link" bsSize="small" onClick={this.removeTimer}>Remove</Button>
+              </p>
             </Col>
             <Col xs={4} md={4}>
               <div>
