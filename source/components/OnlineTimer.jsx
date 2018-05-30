@@ -91,7 +91,7 @@ export default class TmcTimer extends Component {
         <Row>
           <Col xs={12} xsOffset={0} md={10} mdOffset={1}>
 
-            <PageHeader>Online Timer <small>for ToastMaster</small></PageHeader>
+            <PageHeader>Online Timer</PageHeader>
 
             <FormGroup controlId="formControlsSelect">
               <ControlLabel>Firstly, Select Pattern</ControlLabel>
@@ -107,8 +107,8 @@ export default class TmcTimer extends Component {
                                    alert("Error input!!!");
                                }
                              }}>
-                <option defaultValue value="default">default</option>
-                <option value="selfdefine">self-define-auto-save</option>
+                <option defaultValue value="default">default, for ToastMaster</option>
+                <option value="selfdefine">self-defined auto save</option>
               </FormControl>
             </FormGroup>
 

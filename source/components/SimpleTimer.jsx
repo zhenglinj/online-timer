@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Row, Col } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
-import { ProgressBar, Modal } from 'react-bootstrap';
+import { ProgressBar, Modal, Form, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
-const MAX_TIMEOUT_SECONDS = 3600;
+const MAX_TIMEOUT_SECONDS = 600;
 
 function zerofloor(x) {
   let ret = Math.abs(x);
@@ -26,12 +26,12 @@ function sec2time(sec) {
   m = m > 0 ? m : -m;
   s = s > 0 ? s : -s;
   return (
-    { h: pad(h, 2), m: pad(m, 2), s: pad(s, 2)}
+    { h: pad(h, 2), m: pad(m, 2), s: pad(s, 2) }
   )
 }
 
 export default class SimpleTimer extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.tick = this.tick.bind(this);
@@ -40,6 +40,7 @@ export default class SimpleTimer extends React.Component {
     this.openEditModal = this.openEditModal.bind(this);
     this.removeTimer = this.removeTimer.bind(this);
     this.startTimer = this.startTimer.bind(this);
+    this.resumeTimer = this.resumeTimer.bind(this);
     this.pauseTimer = this.pauseTimer.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
     this.stopTimer = this.stopTimer.bind(this);
@@ -73,28 +74,28 @@ export default class SimpleTimer extends React.Component {
     };
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     clearInterval(this.timer);
   }
 
-  componentDidUpdate () {
+  componentDidUpdate() {
     if (!this.state.isStoped && this.state.leftSeconds <= - MAX_TIMEOUT_SECONDS)
       this.stopTimer();
   }
 
-  tick () {
+  tick() {
     let now = new Date().getTime();
-    this.setState({leftSeconds: (this.state.startTimestamp + this.state.totalSeconds - parseInt(now / 1000))});
+    this.setState({ leftSeconds: (this.state.startTimestamp + this.state.totalSeconds - parseInt(now / 1000)) });
   }
 
-  closeEditModal () {
-    this.setState({showEditModal: false});
+  closeEditModal() {
+    this.setState({ showEditModal: false });
   }
 
-  submitEditModal () {
+  submitEditModal() {
     let newTotalSeconds = 3600 * parseInt(ReactDOM.findDOMNode(this.refs.hourInput).value) +
-                          60 * parseInt(ReactDOM.findDOMNode(this.refs.minuteInput).value) +
-                          parseInt(ReactDOM.findDOMNode(this.refs.secondInput).value);
+      60 * parseInt(ReactDOM.findDOMNode(this.refs.minuteInput).value) +
+      parseInt(ReactDOM.findDOMNode(this.refs.secondInput).value);
     let newName = ReactDOM.findDOMNode(this.refs.timerNameInput).value;
 
     this.setState({
@@ -117,19 +118,19 @@ export default class SimpleTimer extends React.Component {
     clearInterval(this.timer);
   }
 
-  openEditModal () {
-    this.setState({showEditModal: true});
+  openEditModal() {
+    this.setState({ showEditModal: true });
   }
 
-  removeTimer () {
-    this.setState({showTimer: false});
+  removeTimer() {
+    this.setState({ showTimer: false });
 
     this.props.onRemove();
 
     clearInterval(this.timer);
   }
 
-  startTimer () {
+  startTimer() {
     let now = new Date().getTime();
     this.setState({
       startTimestamp: (parseInt(now / 1000)),
@@ -146,17 +147,34 @@ export default class SimpleTimer extends React.Component {
     this.timer = setInterval(this.tick, 1000);
   }
 
-  pauseTimer () {
+  resumeTimer() {
+    let now = new Date().getTime();
+    this.setState({
+      startTimestamp: (parseInt(now / 1000)) - this.state.totalSeconds + this.state.leftSeconds,
+      spButton: (
+        <Button bsStyle="primary" onClick={this.pauseTimer}>
+          <span className="glyphicon glyphicon-pause"></span>
+        </Button>),
+      rButton: (
+        <Button onClick={this.resetTimer}>
+          <span className="glyphicon glyphicon-repeat"></span>
+        </Button>)
+    });
+    clearInterval(this.timer);
+    this.timer = setInterval(this.tick, 1000);
+  }
+
+  pauseTimer() {
     this.setState({
       spButton: (
-        <Button bsStyle="info" onClick={this.startTimer}>
-          <span className="glyphicon glyphicon-triangle-right"></span>
+        <Button bsStyle="info" onClick={this.resumeTimer}>
+          <span className="glyphicon glyphicon-step-forward"></span>
         </Button>)
     });
     clearInterval(this.timer);
   }
 
-  resetTimer () {
+  resetTimer() {
     this.setState({
       leftSeconds: (this.state.totalSeconds),
       spButton: (
@@ -171,7 +189,7 @@ export default class SimpleTimer extends React.Component {
     clearInterval(this.timer);
   }
 
-  stopTimer () {
+  stopTimer() {
     this.setState({
       isStoped: true,
       spButton: (
@@ -186,7 +204,7 @@ export default class SimpleTimer extends React.Component {
     clearInterval(this.timer);
   }
 
-  render () {
+  render() {
     if (this.state.showTimer) {
       let totalTime = sec2time(this.state.totalSeconds);
       let leftTime = sec2time(this.state.leftSeconds);
@@ -220,20 +238,36 @@ export default class SimpleTimer extends React.Component {
       let editModal = (
         <Modal show={this.state.showEditModal} onHide={this.closeEditModal}>
           <Modal.Header closeButton>
-            <Modal.Title>Edit Timer:</Modal.Title>
+            <Modal.Title>Edit Timer</Modal.Title>
           </Modal.Header>
           <Modal.Body>
 
-            <input ref="hourInput" type="text" defaultValue={parseInt(totalTime.h)} />
-            {" : "}
-            <input ref="minuteInput" type="text" defaultValue={parseInt(totalTime.m)} />
-            {" : "}
-            <input ref="secondInput" type="text" defaultValue={parseInt(totalTime.s)} />
+            <Form inline>
+              <FormGroup controlId="hourInput">
+                {' '}
+                <FormControl type="text" ref="hourInput" defaultValue={parseInt(totalTime.h)} />
+              </FormGroup>{' '}
+              <FormGroup controlId="minuteInput">
+                {' '}
+                <FormControl type="text" ref="minuteInput" defaultValue={parseInt(totalTime.m)} />
+              </FormGroup>{' '}
+              <FormGroup controlId="secondInput">
+                {' '}
+                <FormControl type="text" ref="secondInput" defaultValue={parseInt(totalTime.s)} />
+              </FormGroup>{' '}
 
-            <hr />
+              <hr />
 
-            <label>Timer Name:</label>
-            <input ref="timerNameInput" type="text" defaultValue={this.state.name} />
+              <FormGroup controlId="formBasicText">
+                <ControlLabel>Timer Name:</ControlLabel>{' '}
+                <FormControl
+                  type="text"
+                  ref="timerNameInput"
+                  defaultValue={this.state.name}
+                  placeholder="Enter text"
+                />
+              </FormGroup>
+            </Form>
 
           </Modal.Body>
           <Modal.Footer>
@@ -245,19 +279,19 @@ export default class SimpleTimer extends React.Component {
       let timeMonitor = () => {
         if (this.state.leftSeconds >= 0) {
           return (
-            <h1 style={{marginTop: "0px", marginBottom: "0px"}}>
+            <h1 style={{ marginTop: "0px", marginBottom: "0px" }}>
               {" " + leftTime.h + ":" + leftTime.m + ":" + leftTime.s}
             </h1>
           );
         } else if (this.state.leftSeconds >= - MAX_TIMEOUT_SECONDS) {
           return (
-            <h1 style={{marginTop: "0px", marginBottom: "0px", background: "lightpink", color: "gray"}}>
+            <h1 style={{ marginTop: "0px", marginBottom: "0px", background: "lightpink", color: "gray" }}>
               {"-" + leftTime.h + ":" + leftTime.m + ":" + leftTime.s}
             </h1>
           );
         } else {
           return (
-            <h1 style={{marginTop: "0px", marginBottom: "0px", background: "lightpink", color: "gray"}}>
+            <h1 style={{ marginTop: "0px", marginBottom: "0px", background: "lightpink", color: "gray" }}>
               {"> -" + maxTimeoutTime.h + ":" + maxTimeoutTime.m + ":" + maxTimeoutTime.s}
             </h1>
           );
