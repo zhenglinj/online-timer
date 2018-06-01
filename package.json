@@ -21,6 +21,7 @@
     "react": "^15.0.2",
     "react-bootstrap": "^0.30.10",
     "react-dom": "^15.0.2",
+    "react-sound": "^1.2.0",
     "webpack": "^2.5.1",
     "webpack-dev-middleware": "^1.10.2",
     "webpack-hot-middleware": "^2.18.0"

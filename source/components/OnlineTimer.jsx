@@ -17,6 +17,7 @@ const defaultParams = [
   { name: "Grammarian", totalSeconds: 120 },
 
   { name: "Table Topic", totalSeconds: 1200 },
+  { name: "Table Topic Speaker", totalSeconds: 120 },
 
   { name: "Evaluator", totalSeconds: 30 },
   { name: "Prepared Speech", totalSeconds: 420 },

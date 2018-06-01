@@ -3,8 +3,10 @@ import ReactDOM from 'react-dom';
 import { Row, Col } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
 import { ProgressBar, Modal, Form, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
+import Sound from 'react-sound';
+const path = require('path');
 
-const MAX_TIMEOUT_SECONDS = 600;
+const MAX_TIMEOUT_SECONDS = 120; // 2min
 
 function zerofloor(x) {
   let ret = Math.abs(x);
@@ -139,7 +141,7 @@ export default class SimpleTimer extends React.Component {
           <span className="glyphicon glyphicon-pause"></span>
         </Button>),
       rButton: (
-        <Button onClick={this.resetTimer}>
+        <Button onClick={this.resetTimer} disabled>
           <span className="glyphicon glyphicon-repeat"></span>
         </Button>)
     });
@@ -156,7 +158,7 @@ export default class SimpleTimer extends React.Component {
           <span className="glyphicon glyphicon-pause"></span>
         </Button>),
       rButton: (
-        <Button onClick={this.resetTimer}>
+        <Button onClick={this.resetTimer} disabled>
           <span className="glyphicon glyphicon-repeat"></span>
         </Button>)
     });
@@ -169,6 +171,10 @@ export default class SimpleTimer extends React.Component {
       spButton: (
         <Button bsStyle="info" onClick={this.resumeTimer}>
           <span className="glyphicon glyphicon-step-forward"></span>
+        </Button>),
+      rButton: (
+        <Button onClick={this.resetTimer}>
+          <span className="glyphicon glyphicon-repeat"></span>
         </Button>)
     });
     clearInterval(this.timer);
@@ -211,28 +217,43 @@ export default class SimpleTimer extends React.Component {
       let maxTimeoutTime = sec2time(MAX_TIMEOUT_SECONDS);
 
       let progressBar;
+      let soundBar;
       let leftSeconds = this.state.leftSeconds;
       let totalSeconds = this.state.totalSeconds;
 
       let now = parseInt(leftSeconds >= 0 ? (100 * leftSeconds / totalSeconds).toFixed(0) : 0);
       if (totalSeconds <= 180) {
-        if (leftSeconds >= 60)
+        if (leftSeconds >= 60) {
           progressBar = (<ProgressBar bsStyle="info" now={now} />)
-        else if (leftSeconds >= 30)
+        } else if (leftSeconds >= 30) {
           progressBar = (<ProgressBar bsStyle="success" now={now} />)
-        else if (leftSeconds >= 10)
+        } else if (leftSeconds >= 10) {
           progressBar = (<ProgressBar bsStyle="warning" now={now} />)
-        else
+        } else {
           progressBar = (<ProgressBar bsStyle="danger" now={now} />)
+        }
       } else {
-        if (leftSeconds >= 120)
+        if (leftSeconds >= 120) {
           progressBar = (<ProgressBar bsStyle="info" now={now} />)
-        else if (leftSeconds >= 60)
+        } else if (leftSeconds >= 60) {
           progressBar = (<ProgressBar bsStyle="success" now={now} />)
-        else if (leftSeconds >= 30)
+        } else if (leftSeconds >= 30) {
           progressBar = (<ProgressBar bsStyle="warning" now={now} />)
-        else
+        } else {
           progressBar = (<ProgressBar bsStyle="danger" now={now} />)
+        }
+      }
+
+      if (leftSeconds == 0) {
+        soundBar = (<Sound url={path.join("media", "alarm-clock-1-m.mp3")}
+          playStatus={Sound.status.PLAYING}
+          playFromPosition={0}
+        />)
+      } else if (leftSeconds == -MAX_TIMEOUT_SECONDS) {
+        soundBar = (<Sound url={path.join("media", "alarm-clock-1-m.mp3")}
+          playStatus={Sound.status.PLAYING}
+          playFromPosition={0}
+        />)
       }
 
       let editModal = (
@@ -271,7 +292,8 @@ export default class SimpleTimer extends React.Component {
 
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={this.submitEditModal}>Submit</Button>
+            <Button bsStyle="danger" onClick={this.removeTimer}>Remove</Button>
+            <Button bsStyle="primary" onClick={this.submitEditModal}>Submit</Button>
           </Modal.Footer>
         </Modal>
       );
@@ -311,8 +333,6 @@ export default class SimpleTimer extends React.Component {
                 <Button bsStyle="link" bsSize="small" onClick={this.openEditModal}>
                   <span className="glyphicon glyphicon-time"></span>Edit
                 </Button>
-                {" | "}
-                <Button bsStyle="link" bsSize="small" onClick={this.removeTimer}>Remove</Button>
               </p>
             </Col>
             <Col xs={4} md={4}>
@@ -327,6 +347,8 @@ export default class SimpleTimer extends React.Component {
           </Row>
 
           {progressBar}
+
+          {soundBar}
 
           {editModal}
 
