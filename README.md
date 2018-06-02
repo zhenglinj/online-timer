@@ -1,6 +1,6 @@
-# tmc-online-timer
+# Online Timer
 
-[Online Timer for ToastMaster](https://tmc-online-timer.herokuapp.com/)
+[Online Timer for ToastMaster](https://online-timer.herokuapp.com/)
 
 <hr/>
 

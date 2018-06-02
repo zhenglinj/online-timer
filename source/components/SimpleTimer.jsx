@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Row, Col } from 'react-bootstrap';
 import { Button } from 'react-bootstrap';
 import { ProgressBar, Modal, Form, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
-import Sound from 'react-sound';
+import ReactPlayer from 'react-player'
 const path = require('path');
 
 const MAX_TIMEOUT_SECONDS = 120; // 2min
@@ -217,7 +217,7 @@ export default class SimpleTimer extends React.Component {
       let maxTimeoutTime = sec2time(MAX_TIMEOUT_SECONDS);
 
       let progressBar;
-      let soundBar;
+      let soundPlayer;
       let leftSeconds = this.state.leftSeconds;
       let totalSeconds = this.state.totalSeconds;
 
@@ -245,15 +245,9 @@ export default class SimpleTimer extends React.Component {
       }
 
       if (leftSeconds == 0) {
-        soundBar = (<Sound url={path.join("media", "alarm-clock-1-m.mp3")}
-          playStatus={Sound.status.PLAYING}
-          playFromPosition={0}
-        />)
+        soundPlayer = (<ReactPlayer url={path.join("media", "alarm-clock-1-m.mp3")} playing width={"0px"} height={"0px"} />)
       } else if (leftSeconds == -MAX_TIMEOUT_SECONDS) {
-        soundBar = (<Sound url={path.join("media", "alarm-clock-1-m.mp3")}
-          playStatus={Sound.status.PLAYING}
-          playFromPosition={0}
-        />)
+        soundPlayer = (<ReactPlayer url={path.join("media", "alarm-clock-1-m.mp3")} playing width={"0px"} height={"0px"} />)
       }
 
       let editModal = (
@@ -267,11 +261,11 @@ export default class SimpleTimer extends React.Component {
               <FormGroup controlId="hourInput">
                 {' '}
                 <FormControl type="text" ref="hourInput" defaultValue={parseInt(totalTime.h)} />
-              </FormGroup>{' '}
+              </FormGroup>{' : '}
               <FormGroup controlId="minuteInput">
                 {' '}
                 <FormControl type="text" ref="minuteInput" defaultValue={parseInt(totalTime.m)} />
-              </FormGroup>{' '}
+              </FormGroup>{' : '}
               <FormGroup controlId="secondInput">
                 {' '}
                 <FormControl type="text" ref="secondInput" defaultValue={parseInt(totalTime.s)} />
@@ -348,7 +342,7 @@ export default class SimpleTimer extends React.Component {
 
           {progressBar}
 
-          {soundBar}
+          {soundPlayer}
 
           {editModal}
 
